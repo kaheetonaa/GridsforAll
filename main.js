@@ -2,23 +2,76 @@ import Map from 'ol/Map.js';
 import View from 'ol/View.js';
 import ImageLayer from 'ol/layer/Image.js';
 import RasterSource from 'ol/source/Raster.js';
+import VectorSource from 'ol/source/Vector.js';
 import Source from 'ol/source/ImageTile.js';
 import Grid from 'ol-grid';
 import Style from 'ol/style/Style.js';
 import Icon from 'ol/style/Icon.js';
-import cross from './assets/cross.svg'
+import GeoJSON from 'ol/format/GeoJSON.js';
+import VectorLayer from 'ol/layer/Vector.js';
+import Cluster from 'ol/source/Cluster.js';
+import Fill from 'ol/style/Fill.js';
+import Text from 'ol/style/Text.js';
+import cross from '/assets/cross.svg'
 
-/**
- * Color manipulation functions below are adapted from
- * https://github.com/d3/d3-color.
- */
+
+let grid_style = new Style({
+  image: new Icon({
+    color: 'white',
+    scale: 1,
+    crossOrigin: 'anonymous',
+    src: cross,
+  }),
+})
 
 
-/**
- * Convert an RGB pixel into an HCL pixel.
- * @param {Array<number>} pixel A pixel in RGB space.
- * @return {Array<number>} A pixel in HCL space.
- */
+
+var buildings = new VectorSource({
+projection : 'EPSG:3857',
+url: '/data/output.geojson',
+format: new GeoJSON
+});
+
+const building_cluster = new Cluster({
+  distance: 50,
+  minDistance: 1,
+  source: buildings,
+});
+
+const styleCache = {};
+
+const building_layer = new VectorLayer({
+  source: building_cluster,
+  style: function (feature) {
+    const size = feature.get('features').length;
+    let style = styleCache[size];
+    if (!style) {
+      style = new Style({
+        image: new Icon({
+          color: 'red',
+          scale: 3,
+          crossOrigin: 'anonymous',
+          src: cross,
+        }),
+        text: new Text({
+          text: size.toString(),
+          fill: new Fill({
+            color: 'red',
+          }),
+          offsetX:10,
+          offsetY:10
+        }),
+      });
+      styleCache[size] = style;      
+    }
+    return style;
+  },
+});
+
+
+
+
+
 const raster = new RasterSource({
   sources: [
     new Source({
@@ -152,7 +205,7 @@ const map = new Map({
   layers: [
     new ImageLayer({
       source: raster,
-    })
+    }),building_layer
   ],
   target: 'map',
   view: new View({
@@ -162,39 +215,35 @@ const map = new Map({
   }),
 });
 
-let grid_style = new Style({
-  image: new Icon({
-    color: 'white',
-    scale: 1,
-    crossOrigin: 'anonymous',
-    src: cross,
-  }),
-})
-let grid_size_list = [250000, 50000, 5000, 1000]
+
+let grid_size_list = [250000, 50000, 5000, 1000,200]
 let grid_size = grid_size_list[0]
 let grid = new Grid({ originCoordinate: [0, 0], rotationAnchorCoordinate: [0, 1], xGridSize: grid_size, yGridSize: grid_size, style: grid_style });
 map.addInteraction(grid)
 
 raster.on('beforeoperations',() => {
-  console.log('Loading tiles,might take times!')
+  document.getElementById("status").textContent="Loading basemap,might take times";
 })
 raster.on('afteroperations',() => {
-  console.log('Done loading tiles!')
+  document.getElementById("status").textContent="Done loading basemap";
 })
 
 map.on('moveend', (e) => {
   let zoom = map.getView().getZoom();
-  if (zoom <= 7) {
+  if (zoom <= 8) {
     grid_size = grid_size_list[0]
   }
-  if (zoom <= 10 && zoom > 7) {
+  if (zoom <= 11 && zoom > 8) {
     grid_size = grid_size_list[1]
   }
-  if (zoom <= 13 && zoom > 10) {
+  if (zoom <= 14 && zoom > 11) {
     grid_size = grid_size_list[2]
   }
-  if (zoom > 13) {
+  if (zoom <= 16 && zoom > 14) {
     grid_size = grid_size_list[3]
+  }
+  if (zoom>16){
+    grid_size = grid_size_list[4]
   }
   grid.setXGridSize(grid_size)
   grid.setYGridSize(grid_size)
