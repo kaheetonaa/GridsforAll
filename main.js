@@ -49,33 +49,45 @@ const raster = new RasterSource({
       return pixel;
     }
 
-    function rgb2hcl(pixel) {
-      const red = rgb2xyz(pixel[0]);
-      const green = rgb2xyz(pixel[1]);
-      const blue = rgb2xyz(pixel[2]);
+    function rgb2hsl(pixel) {
+      let r = pixel[0]/255;
+      let g = pixel[1]/255;
+      let b = pixel[2]/255;
 
-      const x = xyz2lab(
-        (0.4124564 * red + 0.3575761 * green + 0.1804375 * blue) / Xn,
-      );
-      const y = xyz2lab(
-        (0.2126729 * red + 0.7151522 * green + 0.072175 * blue) / Yn,
-      );
-      const z = xyz2lab(
-        (0.0193339 * red + 0.119192 * green + 0.9503041 * blue) / Zn,
-      );
-
-      const l = 116 * y - 16;
-      const a = 500 * (x - y);
-      const b = 200 * (y - z);
-
-      const c = Math.sqrt(a * a + b * b);
-      let h = Math.atan2(b, a);
-      if (h < 0) {
-        h += twoPi;
-      }
+      var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    // lightness is the average of the largest and smallest color components
+    var lum = (max + min) / 2;
+    var hue;
+    var sat;
+    if (max == min) { // no saturation
+        hue = 0;
+        sat = 0;
+    } else {
+        var c = max - min; // chroma
+        // saturation is simply the chroma scaled to fill
+        // the interval [0, 1] for every combination of hue and lightness
+        sat = c / (1 - Math.abs(2 * lum - 1));
+        switch(max) {
+            case r:
+                // hue = (g - b) / c;
+                // hue = ((g - b) / c) % 6;
+                // hue = (g - b) / c + (g < b ? 6 : 0);
+                break;
+            case g:
+                hue = (b - r) / c + 2;
+                break;
+            case b:
+                hue = (r - g) / c + 4;
+                break;
+        }
+    }
+    let h = Math.round(hue * 60); // °
+    let s = Math.round(sat * 100); // %
+    let l = Math.round(lum * 100); // %
 
       pixel[0] = h;
-      pixel[1] = c;
+      pixel[1] = s;
       pixel[2] = l;
 
       return pixel;
@@ -86,54 +98,67 @@ const raster = new RasterSource({
      * @param {Array<number>} pixel A pixel in HCL space.
      * @return {Array<number>} A pixel in RGB space.
      */
-    function hcl2rgb(pixel) {
-      const h = pixel[0];
-      const c = pixel[1];
-      const l = pixel[2];
+    function hsl2rgb (pixel) {
+      h=pixel[0];
+      s=pixel[1];
+      l=pixel[2];
 
-      const a = Math.cos(h) * c;
-      const b = Math.sin(h) * c;
-
-      let y = (l + 16) / 116;
-      let x = isNaN(a) ? y : y + a / 500;
-      let z = isNaN(b) ? y : y - b / 200;
-
-      y = Yn * lab2xyz(y);
-      x = Xn * lab2xyz(x);
-      z = Zn * lab2xyz(z);
-
-      pixel[0] = xyz2rgb(3.2404542 * x - 1.5371385 * y - 0.4985314 * z);
-      pixel[1] = xyz2rgb(-0.969266 * x + 1.8760108 * y + 0.041556 * z);
-      pixel[2] = xyz2rgb(0.0556434 * x - 0.2040259 * y + 1.0572252 * z);
-
+      let r, g, b, m, c, x
+  
+      if (!isFinite(h)) h = 0
+      if (!isFinite(s)) s = 0
+      if (!isFinite(l)) l = 0
+  
+      h /= 60
+      if (h < 0) h = 6 - (-h % 6)
+      h %= 6
+  
+      s = Math.max(0, Math.min(1, s / 100))
+      l = Math.max(0, Math.min(1, l / 100))
+  
+      c = (1 - Math.abs((2 * l) - 1)) * s
+      x = c * (1 - Math.abs((h % 2) - 1))
+  
+      if (h < 1) {
+          r = c
+          g = x
+          b = 0
+      } else if (h < 2) {
+          r = x
+          g = c
+          b = 0
+      } else if (h < 3) {
+          r = 0
+          g = c
+          b = x
+      } else if (h < 4) {
+          r = 0
+          g = x
+          b = c
+      } else if (h < 5) {
+          r = x
+          g = 0
+          b = c
+      } else {
+          r = c
+          g = 0
+          b = x
+      }
+  
+      m = l - c / 2
+      pixel[0] = Math.round((r + m) * 255)
+      pixel[1] = Math.round((g + m) * 255)
+      pixel[2] = Math.round((b + m) * 255)
       return pixel;
-    }
 
-    function xyz2lab(t) {
-      return t > t3 ? Math.pow(t, 1 / 3) : t / t2 + t0;
-    }
+  
+  }
 
-    function lab2xyz(t) {
-      return t > t1 ? t * t * t : t2 * (t - t0);
-    }
+    const hsl = rgb2hsl(pixels[0]);
+    hsl[1] *= 0;
+    hsl[2] *= 1;
 
-    function rgb2xyz(x) {
-      return (x /= 255) <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
-    }
-
-    function xyz2rgb(x) {
-      return (
-        255 * (x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055)
-      );
-    }
-
-    const hcl = rgb2hcl(pixels[0]);
-    hcl[0] = 0;
-
-    hcl[1] *= 0;
-    hcl[2] *= 1;
-
-    return invert_color(hcl2rgb(hcl));
+    return invert_color(hsl2rgb(hsl));
   },
 });
 
@@ -160,6 +185,28 @@ let grid_style = new Style({
     src: cross,
   }),
 })
+let grid_size_list=[250000,50000,5000,1000]
+let grid_size=grid_size_list[0]
+let grid=new Grid({ originCoordinate: [0, 0], rotationAnchorCoordinate: [0, 1], xGridSize: grid_size, yGridSize: grid_size, style: grid_style });
+map.addInteraction(grid)
+map.on('moveend', (e) => {
+  let zoom= map.getView().getZoom();
+  if (zoom<=7){
+    grid_size=grid_size_list[0]
+  }
+  if (zoom<=10 && zoom>7) {
+    grid_size=grid_size_list[1]
+  }
+  if (zoom<=13 && zoom>10) {
+    grid_size=grid_size_list[2]
+  }
+  if (zoom>13) {
+    grid_size=grid_size_list[3]
+  }
+  grid.setXGridSize(grid_size)
+  grid.setYGridSize(grid_size)
+  console.log(zoom,grid.xGridSize)
+})
 
-map.addInteraction(new Grid({ originCoordinate: [0, 0], rotationAnchorCoordinate: [0, 1], xGridSize: 250000, yGridSize: 250000, style: grid_style }));
+
 
