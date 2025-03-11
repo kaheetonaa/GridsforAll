@@ -10,41 +10,49 @@
       width: 100vw- 10vh;
       height: 97.5vh;
     }
-    #canvas{
-      position:absolute;
-      width: 100vw- 10vh;
-      height: 97.5vh;
+
+    #myCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index:100;
+      pointer-events: none;
     }
 
-    #info{
-      top:2vh;
-      right:2vh;
-      resize:both;
-      direction:rtl;
+    #info {
+      top: 2vh;
+      right: 2vh;
+      resize: both;
+      direction: rtl;
       color: 'white';
       z-index: 90;
       position: absolute;
       width: 20vh;
       height: 20vh;
-      overflow:hidden;
+      overflow: hidden;
       overflow-wrap: break-word;
       border: 1px dashed #000000;
       background-color: white;
     }
   </style>
-  <script type="module" crossorigin src="assets/index-Dl95Vegz.js"></script>
+  <script type="module" crossorigin src="assets/index-SZa-j1Kv.js"></script>
   <link rel="stylesheet" crossorigin href="assets/index-BtPuoxOl.css">
 <link rel="manifest" href="manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="registerSW.js"></script></head>
 
 <body>
-  <canvas id="myCanvas" style="border:1px solid #000000;">
+  <canvas id="myCanvas">
   </canvas>
-    <div id="info">
-        <b>Status</b><p id="status"></p><br>
-        <b>Infomation</b><p id="content"></p>
-    </div>
-  <div id="map" class="map"></div>  
+  <div id="info">
+    <b>Status</b>
+    <p id="status"></p><br>
+    <b>Infomation</b>
+    <p id="content"></p>
   </div>
+  <div id="map" class="map"></div>
+  </div>
+ 
 
 
 
