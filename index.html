@@ -12,17 +12,27 @@
       height: 97.5vh;
     }
 
-    #info{
-      top:2vh;
-      right:2vh;
-      resize:both;
-      direction:rtl;
+    #myCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index:100;
+      pointer-events: none;
+    }
+
+    #info {
+      top: 2vh;
+      right: 2vh;
+      resize: both;
+      direction: rtl;
       color: 'white';
       z-index: 90;
       position: absolute;
       width: 20vh;
       height: 20vh;
-      overflow:hidden;
+      overflow: hidden;
       overflow-wrap: break-word;
       border: 1px dashed #000000;
       background-color: white;
@@ -31,15 +41,17 @@
 </head>
 
 <body>
-
-    <div id="info">
-        <b>Status</b><p id="status"></p><br>
-        <b>Infomation</b><p id="content"></p>
-    </div>
-  <div id="map" class="map"></div>
-
-  
+  <canvas id="myCanvas">
+  </canvas>
+  <div id="info">
+    <b>Status</b>
+    <p id="status"></p><br>
+    <b>Infomation</b>
+    <p id="content"></p>
   </div>
+  <div id="map" class="map"></div>
+  </div>
+ 
 
 
 

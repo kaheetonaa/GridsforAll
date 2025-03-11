@@ -12,7 +12,40 @@ import VectorLayer from 'ol/layer/Vector.js';
 import Cluster from 'ol/source/Cluster.js';
 import Fill from 'ol/style/Fill.js';
 import Text from 'ol/style/Text.js';
-import cross from '/assets/cross.svg'
+import cross from '/assets/cross.svg';
+
+//Drawing overlay
+
+let canvas = document.getElementById("myCanvas");
+let ctx = canvas.getContext("2d");
+
+window.addEventListener('resize', resizeCanvas, false);
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  /**
+   * Your drawings need to be inside this function otherwise they will be reset when 
+   * you resize the browser window and the canvas goes will be cleared.
+   */
+  drawStuff();
+}
+
+resizeCanvas();
+
+function drawStuff() {
+  // do your drawing stuff here
+  let centerX=window.innerWidth/2;
+  let centerY=window.innerHeight/2;
+  console.log(centerX)
+  ctx.beginPath();
+  ctx.setLineDash([5, 15]);
+  ctx.arc(centerX,centerY,25,0,2 * Math.PI);
+  ctx.stroke();
+}
+
+
 
 
 let grid_style = new Style({
@@ -24,12 +57,10 @@ let grid_style = new Style({
   }),
 })
 
-
-
 var buildings = new VectorSource({
-projection : 'EPSG:3857',
-url: '/data/output.geojson',
-format: new GeoJSON
+  projection: 'EPSG:3857',
+  url: 'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/main/data/output.geojson',
+  format: new GeoJSON
 });
 
 const building_cluster = new Cluster({
@@ -41,6 +72,7 @@ const building_cluster = new Cluster({
 const styleCache = {};
 
 const building_layer = new VectorLayer({
+  className:'building',
   source: building_cluster,
   style: function (feature) {
     const size = feature.get('features').length;
@@ -58,11 +90,11 @@ const building_layer = new VectorLayer({
           fill: new Fill({
             color: 'red',
           }),
-          offsetX:10,
-          offsetY:10
+          offsetX: 10,
+          offsetY: 10
         }),
       });
-      styleCache[size] = style;      
+      styleCache[size] = style;
     }
     return style;
   },
@@ -197,7 +229,7 @@ const raster = new RasterSource({
     hsl[2] *= 1;
 
     return invert_color(hsl2rgb(hsl));
-    
+
   },
 });
 
@@ -205,7 +237,7 @@ const map = new Map({
   layers: [
     new ImageLayer({
       source: raster,
-    }),building_layer
+    }), building_layer
   ],
   target: 'map',
   view: new View({
@@ -216,19 +248,30 @@ const map = new Map({
 });
 
 
-let grid_size_list = [250000, 50000, 5000, 1000,200]
+let grid_size_list = [250000, 50000, 5000, 1000, 200]
 let grid_size = grid_size_list[0]
 let grid = new Grid({ originCoordinate: [0, 0], rotationAnchorCoordinate: [0, 1], xGridSize: grid_size, yGridSize: grid_size, style: grid_style });
 map.addInteraction(grid)
 
-raster.on('beforeoperations',() => {
-  document.getElementById("status").textContent="Loading basemap,might take times";
+raster.on('beforeoperations', () => {
+  document.getElementById("status").textContent = "Loading basemap,might take times";
 })
-raster.on('afteroperations',() => {
-  document.getElementById("status").textContent="Done loading basemap";
+raster.on('afteroperations', () => {
+  document.getElementById("status").textContent = "Done loading basemap";
 })
 
 map.on('moveend', (e) => {
+  //console.log(building_layer['className_'])
+  //console.log('center' + map.getPixelFromCoordinate(map.getView().getCenter()))
+  map.forEachFeatureAtPixel(map.getPixelFromCoordinate(
+    map.getView().getCenter()),
+    (features)=>{console.log(features['values_']['features'][0]['values_']['(1) BUILDING NAME ']);
+      document.getElementById("content").textContent =features['values_']['features'][0]['values_']['(1) BUILDING NAME '];
+      return true;},
+    {
+    layerFilter:(layer)=>{return layer['className_']=='building'},
+    hitTolerance: 100,
+  })
   let zoom = map.getView().getZoom();
   if (zoom <= 8) {
     grid_size = grid_size_list[0]
@@ -242,10 +285,9 @@ map.on('moveend', (e) => {
   if (zoom <= 16 && zoom > 14) {
     grid_size = grid_size_list[3]
   }
-  if (zoom>16){
+  if (zoom > 16) {
     grid_size = grid_size_list[4]
   }
   grid.setXGridSize(grid_size)
   grid.setYGridSize(grid_size)
-
 })
