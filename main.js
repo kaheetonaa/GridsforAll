@@ -48,7 +48,7 @@ function drawStuff() {
     ctx.strokeStyle = 'red';
     ctx.beginPath()
     ctx.moveTo(centerX, centerY);
-    ctx.lineTo(select_coord[0] + 8, select_coord[1] + 8);
+    ctx.lineTo(select_coord[0], select_coord[1]);
     ctx.stroke();
     ctx.font = 'bold 16px Courier'; // Default font if none provided
     ctx.fillStyle = 'red'; // Default color if none provided
