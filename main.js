@@ -13,11 +13,18 @@ import Cluster from 'ol/source/Cluster.js';
 import Fill from 'ol/style/Fill.js';
 import Text from 'ol/style/Text.js';
 import cross from '/assets/cross.svg';
+import building_cross from '/assets/building_cross.svg';
 
 //Drawing overlay
 
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
+const centerX = window.innerWidth / 2;
+const centerY = window.innerHeight / 2;
+let select_coord = [centerX, centerY];
+let select = 0;
+let select_name = "";
+let status = "";
 
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -36,16 +43,32 @@ resizeCanvas();
 
 function drawStuff() {
   // do your drawing stuff here
-  let centerX=window.innerWidth/2;
-  let centerY=window.innerHeight/2;
-  console.log(centerX)
-  ctx.beginPath();
-  ctx.setLineDash([5, 15]);
-  ctx.arc(centerX,centerY,25,0,2 * Math.PI);
-  ctx.stroke();
+  ctx.clearRect(0, 0, centerX * 2, centerY * 2);//clear background
+  if (select > 0) {
+    ctx.strokeStyle = 'red';
+    ctx.beginPath()
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(select_coord[0] + 8, select_coord[1] + 8);
+    ctx.stroke();
+    ctx.font = 'bold 16px Courier'; // Default font if none provided
+    ctx.fillStyle = 'red'; // Default color if none provided
+    ctx.textAlign = 'center'; // Default alignment if none provided
+    
+    if (select_coord[1] > centerY) {
+      ctx.fillText(select_name, centerX, centerY - 16);
+    } else {
+      ctx.fillText(select_name, centerX, centerY + 16);
+    }
+  } else {
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 100, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1; // Or whatever thickness you want
+    ctx.setLineDash([1, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]); // Reset line dash to solid
+  }
 }
-
-
 
 
 let grid_style = new Style({
@@ -56,6 +79,7 @@ let grid_style = new Style({
     src: cross,
   }),
 })
+
 
 var buildings = new VectorSource({
   projection: 'EPSG:3857',
@@ -72,7 +96,7 @@ const building_cluster = new Cluster({
 const styleCache = {};
 
 const building_layer = new VectorLayer({
-  className:'building',
+  className: 'building',
   source: building_cluster,
   style: function (feature) {
     const size = feature.get('features').length;
@@ -81,9 +105,9 @@ const building_layer = new VectorLayer({
       style = new Style({
         image: new Icon({
           color: 'red',
-          scale: 3,
+          scale: 1,
           crossOrigin: 'anonymous',
-          src: cross,
+          src: building_cross,
         }),
         text: new Text({
           text: size.toString(),
@@ -92,9 +116,10 @@ const building_layer = new VectorLayer({
           }),
           offsetX: 10,
           offsetY: 10
-        }),
+        })
       });
       styleCache[size] = style;
+
     }
     return style;
   },
@@ -254,24 +279,33 @@ let grid = new Grid({ originCoordinate: [0, 0], rotationAnchorCoordinate: [0, 1]
 map.addInteraction(grid)
 
 raster.on('beforeoperations', () => {
-  document.getElementById("status").textContent = "Loading basemap,might take times";
+  status = "Loading basemap,might take times";
 })
 raster.on('afteroperations', () => {
-  document.getElementById("status").textContent = "Done loading basemap";
+  status = "Done loading basemap";
 })
-
+map.on('movestart', (e) => {
+  select = 0;
+  drawStuff();
+})
 map.on('moveend', (e) => {
   //console.log(building_layer['className_'])
   //console.log('center' + map.getPixelFromCoordinate(map.getView().getCenter()))
   map.forEachFeatureAtPixel(map.getPixelFromCoordinate(
     map.getView().getCenter()),
-    (features)=>{console.log(features['values_']['features'][0]['values_']['(1) BUILDING NAME ']);
-      document.getElementById("content").textContent =features['values_']['features'][0]['values_']['(1) BUILDING NAME '];
-      return true;},
+    (features) => {
+      if (features['values_']['features'].length > 0) {
+        select = 1; //have selected
+        //console.log(map.getPixelFromCoordinate(features['values_']['features'][0]['values_']['geometry']['flatCoordinates']));
+        select_coord = map.getPixelFromCoordinate(features['values_']['features'][0]['values_']['geometry']['flatCoordinates']);
+        select_name = features['values_']['features'][0]['values_']['(1) BUILDING NAME '];
+        return true;
+      }
+    },
     {
-    layerFilter:(layer)=>{return layer['className_']=='building'},
-    hitTolerance: 100,
-  })
+      layerFilter: (layer) => { return layer['className_'] == 'building' },
+      hitTolerance: 100,
+    })
   let zoom = map.getView().getZoom();
   if (zoom <= 8) {
     grid_size = grid_size_list[0]
@@ -290,4 +324,5 @@ map.on('moveend', (e) => {
   }
   grid.setXGridSize(grid_size)
   grid.setYGridSize(grid_size)
+  drawStuff();
 })

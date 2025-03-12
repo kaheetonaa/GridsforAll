@@ -7,9 +7,9 @@ html, body {
 }
 #map {
   position: absolute;
-  top: 5vh;
-  bottom:5vh;
-  width: 100vw- 5vh;
+  top: 0;
+  bottom:0;
+  width: 100vw;
   z-index:0;
 }
 
