@@ -18,9 +18,10 @@ import building_cross from '/assets/building_cross.svg';
 //Drawing overlay
 
 let canvas = document.getElementById("myCanvas");
-let ctx = canvas.getContext("2d");
+
 const centerX = window.innerWidth / 2;
 const centerY = window.innerHeight / 2;
+let ctx;
 let select_coord = [centerX, centerY];
 let select = 0;
 let select_name = "";
@@ -31,7 +32,7 @@ window.addEventListener('resize', resizeCanvas, false);
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-
+  ctx = canvas.getContext("2d");
   /**
    * Your drawings need to be inside this function otherwise they will be reset when 
    * you resize the browser window and the canvas goes will be cleared.
