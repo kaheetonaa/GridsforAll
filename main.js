@@ -17,10 +17,11 @@ import building_cross from '/assets/building_cross.svg';
 
 //Drawing overlay
 
-let canvas = document.getElementById("myCanvas");
+
 
 const centerX = window.innerWidth / 2;
 const centerY = window.innerHeight / 2;
+let canvas;
 let ctx;
 let select_coord = [centerX, centerY];
 let select = 0;
@@ -29,9 +30,23 @@ let status = "";
 
 window.addEventListener('resize', resizeCanvas, false);
 
+function createCanvas(width, height, set2dTransform = true) {
+  const ratio = Math.ceil(window.devicePixelRatio);
+  const canvas = document.getElementById("myCanvas");
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  if (set2dTransform) {
+    canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);
+  }
+  return canvas;
+}
+
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas=createCanvas(window.innerWidth,window.innerHeight);
+  //canvas.width = window.innerWidth;
+  //canvas.height = window.innerHeight;
   ctx = canvas.getContext("2d");
   /**
    * Your drawings need to be inside this function otherwise they will be reset when 
