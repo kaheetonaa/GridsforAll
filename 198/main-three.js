@@ -20,7 +20,7 @@ function init() {
     scene.add(cube);
 
     camera.position.z = 5;
-    controls = new TrackballControls(camera, effect.domElement);
+    controls = new TrackballControls(camera, renderer.domElement);
 
     window.addEventListener('resize', onWindowResize);
 
