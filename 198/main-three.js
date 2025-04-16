@@ -32,7 +32,6 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    effect.setSize(window.innerWidth, window.innerHeight);
 
 }
 
