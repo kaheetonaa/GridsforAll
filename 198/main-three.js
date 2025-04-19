@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
 
-let scene, camera, renderer, geometry, material, cube, controls;
+let scene, camera, renderer, geometry, wireframe, line, material;
 
 init();
 
@@ -15,9 +15,19 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     geometry = new THREE.BoxGeometry(1, 1, 1);
-    material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+    wireframe = new THREE.WireframeGeometry(geometry);
+
+    
+    material = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        linewidth: 1,
+        linecap: 'round', //ignored by WebGLRenderer
+        linejoin: 'round' //ignored by WebGLRenderer
+    });
+
+    line = new THREE.LineSegments(wireframe,materialline = new THREE.LineSegments(wireframe););
+
+    scene.add(line);
 
     camera.position.z = 5;
     //controls = new TrackballControls(camera, renderer.domElement);
@@ -40,7 +50,7 @@ function animate() {
 
     /* cube.rotation.x += 0.01;*/
 
-    cube.rotation.y += 0.01;
+    line.rotation.y += 0.01;
 
     renderer.render(scene, camera);
 
