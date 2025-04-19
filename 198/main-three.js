@@ -25,7 +25,7 @@ function init() {
         linejoin: 'round' //ignored by WebGLRenderer
     });
 
-    line = new THREE.LineSegments(wireframe,materialline = new THREE.LineSegments(wireframe));
+    line = new THREE.LineSegments(wireframe,material);
 
     scene.add(line);
 
