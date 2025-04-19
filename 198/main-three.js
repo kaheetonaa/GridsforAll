@@ -11,7 +11,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setAnimationLoop(animate);
+    renderer.setAnimationLoop(animate);//set animation
     document.body.appendChild(renderer.domElement);
 
     geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -19,7 +19,7 @@ function init() {
     cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
 
-    camera.position.z = 0;
+    camera.position.z = 5;
     //controls = new TrackballControls(camera, renderer.domElement);
 
     window.addEventListener('resize', onWindowResize);
