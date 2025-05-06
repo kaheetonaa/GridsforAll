@@ -6,7 +6,9 @@ init();
 
 function init() {
     scene = new THREE.Scene(); //draw scene
-    camera = new THREE.OrthographicCamera(window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 1000)
+    let cameraHeight=5;
+    let screenRatio=window.innerWidth / window.innerHeight;
+    camera = new THREE.OrthographicCamera(-cameraHeight*screenRatio, cameraHeight*screenRatio, cameraHeight, -cameraHeight, 1, 1000)
     camera.position.set(2, 2, 2); // Position the camera
     camera.lookAt(0, 0, 0); // Point the camera at the center of the scene
 
