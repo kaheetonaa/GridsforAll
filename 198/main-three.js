@@ -6,7 +6,7 @@ import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-let scene, camera, renderer,g,eg,feg,fm,fl,g2,feg2,fm2,fl2,eg2,directionalLight,controls;
+let scene, camera, renderer,g,eg,feg,fm,fl,g2,feg2,fm2,fl2,eg2,g3,feg3,fm3,fl3,eg3,directionalLight,controls;
 let slider=document.getElementById('myRange')
 init();
 
@@ -30,16 +30,27 @@ function init() {
 
     scene.add(fl);
 
-    g2 = new THREE.BoxGeometry(.1, 1, 1);
+    g2 = new THREE.BoxGeometry(1, .05, 1);
     
     
 
  eg2 = new THREE.EdgesGeometry(g2);
  feg2 = new LineSegmentsGeometry().fromEdgesGeometry(eg2);
-fm2 = new LineMaterial({color: "red",linewidth:1});
+fm2 = new LineMaterial({color: "#00FF00",linewidth:1});
     fl2 = new LineSegments2(feg2, fm2);
 
     scene.add(fl2);
+
+    g3 = new THREE.CylinderGeometry( .1, .1, 1, 8 )
+    
+    
+
+ eg3 = new THREE.EdgesGeometry(g3);
+ feg3 = new LineSegmentsGeometry().fromEdgesGeometry(eg3);
+fm3 = new LineMaterial({color: "lightgray",linewidth:1});
+    fl3 = new LineSegments2(feg3, fm3);
+
+    scene.add(fl3);
 
     const crossLoader = new OBJLoader();
     const crossMtl = new THREE.MeshBasicMaterial({color: 0xFF0000}); 
@@ -91,7 +102,8 @@ function onWindowResize() {
 }
 
 slider.addEventListener('change',()=>{
-    
+    fl2.position.set(0,slider.value,0)
+    fl3.position.set(slider.value,0,0)
 renderer.render(scene, camera);
     console.log(slider.value);
     
@@ -100,7 +112,7 @@ renderer.render(scene, camera);
 
 function animate() {
     controls.update();
-    fl2.position.set(slider.value,0,0)
+    //fl2.position.set(slider.value,0,0)
     renderer.render(scene, camera);
 
 }
