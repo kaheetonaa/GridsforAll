@@ -18,7 +18,7 @@ function init() {
      g = new THREE.BoxGeometry(1, 1, 1);
  eg = new THREE.EdgesGeometry(g);
  feg = new LineSegmentsGeometry().fromEdgesGeometry(eg);
- fm = new LineMaterial({color: "white", linewidth: 0.01, worldUnits: true});
+ fm = new LineMaterial({color: "white", linewidth: 1});
 
     fl = new LineSegments2(feg, fm);
     //wireframe = new THREE.WireframeGeometry2(geometry);
