@@ -6,8 +6,9 @@ init();
 
 function init() {
     scene = new THREE.Scene(); //draw scene
-    camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 1000 )
-    camera.zoom=.001; //test 
+    camera = new THREE.OrthographicCamera(window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 1000)
+    camera.position.set(2, 2, 2); // Position the camera
+    camera.lookAt(0, 0, 0); // Point the camera at the center of the scene
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -17,7 +18,7 @@ function init() {
     geometry = new THREE.BoxGeometry(1, 1, 1);
     wireframe = new THREE.WireframeGeometry(geometry);
 
-    
+
     material = new THREE.LineBasicMaterial({
         color: 0xffffff,
         linewidth: 1,
@@ -25,7 +26,7 @@ function init() {
         linejoin: 'round' //ignored by WebGLRenderer
     });
 
-    line = new THREE.LineSegments(wireframe,material);
+    line = new THREE.LineSegments(wireframe, material);
 
     scene.add(line);
 
