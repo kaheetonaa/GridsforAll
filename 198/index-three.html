@@ -21,11 +21,25 @@
     .slider{
         position:absolute;
     }
+    #timescale{
+        left:5%;
+        top:2%;
+    }
+    #x{
+        left:5%;
+        top:6%;
+    }
+    #y{
+        left:5%;
+        top:10%;
+    }
 </style>
 
 <body>
 <script type="module" src="main-three.js"></script>
-<input type="range" min="-0.475" max="0.475" value="0" step=".05" class="slider" id="myRange">
+    <input type="range" min="0" max="1" value="0" step=".05" class="slider" id="timescale">
+    <input type="range" min="0" max="1" value=".5" step=".05" class="slider" id="x">
+    <input type="range" min="0" max="1" value=".5" step=".05" class="slider" id="y">
 </body>
 
 </html>

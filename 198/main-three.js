@@ -10,7 +10,9 @@ let scene, camera, renderer,g,eg,feg,fm,fl,
     basemap,l2,t2,g2,m2,fl2,eg2,
     g3,feg3,fm3,fl3,eg3,
     directionalLight,controls;
-let slider=document.getElementById('myRange')
+let time_slider=document.getElementById('timescale')
+let x_slider=document.getElementById('x')
+let y_slider=document.getElementById('y')
 
 const manager = new THREE.LoadingManager();
 manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
@@ -33,7 +35,6 @@ preload();
 init();
 
 function preload(){
-    //preload texture
     basemap=['https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2024-12-12.jpeg',
              'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pa	ges/198/assets/basemape/2023-06-13.jpeg',
              'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2022-06-08.jpeg',
@@ -42,9 +43,9 @@ function preload(){
              'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2017-03-15.jpeg',
              'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2015-03-18.jpeg'
              ]
-    slider.step=1;
-    slider.max=basemap.length-1;
-    slider.min=0;
+    time_slider.max=basemap.length-1;
+    time_slider.min=0;
+    time_slider.step=1;
     l2 = new THREE.TextureLoader(manager);
     t2 = [];
     for ( let x=0;x<basemap.length;x++) {
@@ -145,20 +146,21 @@ function onWindowResize() {
 
 }
 
-slider.addEventListener('change',()=>{
-    //fl3.position.set(slider.value/basemap.length,0,0)
+time_slider.addEventListener('change',()=>{
+    //
 renderer.render(scene, camera);
-    console.log(basemap.length-Number(slider.value));
+    console.log(basemap.length-Number(time_slider.value));
     
 })
 
 
 function animate() {
-fl2.material.map = t2[t2.length-Number(slider.value)-1];
+fl3.position.set(x_slider.value-.5,0,1-y_slider.value-.5)
+fl2.material.map = t2[t2.length-Number(time_slider.value)-1];
 fl2.material.needsUpdate = true;
-    fl2.position.set(0,slider.value/(basemap.length-1)-.5,0)
+    fl2.position.set(0,time_slider.value/(basemap.length-1)-.5,0)
     controls.update();
-    //fl2.position.set(slider.value,0,0)
+    //fl2.position.set(time_slider.value,0,0)
     renderer.render(scene, camera);
 
 }
