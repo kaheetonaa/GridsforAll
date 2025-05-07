@@ -35,7 +35,16 @@ init();
 function preload(){
     //preload texture
     basemap=['https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2024-12-12.jpeg',
-             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2015-03-18.jpeg']
+             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pa	ges/198/assets/basemape/2023-06-13.jpeg',
+             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2022-06-08.jpeg',
+             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2019-12-12.jpeg',
+             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2018-03-28.jpeg',
+             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2017-03-15.jpeg',
+             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2015-03-18.jpeg'
+             ]
+    slider.step=1;
+    slider.max=basemap.length-1;
+    slider.min=0;
     l2 = new THREE.TextureLoader(manager);
     t2 = [];
     for ( let x=0;x<basemap.length;x++) {
@@ -72,6 +81,7 @@ function init() {
     })
     fl2 = new THREE.Mesh( g2, m2 );
     fl2.rotation.x= -Math.PI / 2;
+    fl2.position.y= -0.5
 
     scene.add(fl2);
 
@@ -101,7 +111,7 @@ fm3 = new LineMaterial({color: "lightgray",linewidth:1});
           for (let j=0;j<2;j++){
               for (let k=0;k<2;k++){
        if(i==0 && j==0 && k==0){
-           console.log(i,j,k)
+           //console.log(i,j,k)
        }else {
       let crossDup=cross.clone();
       crossDup.position.set(i-0.5,j-0.5,k-0.5);
@@ -136,17 +146,17 @@ function onWindowResize() {
 }
 
 slider.addEventListener('change',()=>{
-    fl2.material.map = t2[1];
-fl2.material.needsUpdate = true;
-    fl2.position.set(0,slider.value,0)
-    fl3.position.set(slider.value,0,0)
+    //fl3.position.set(slider.value/basemap.length,0,0)
 renderer.render(scene, camera);
-    //console.log(slider.value);
+    console.log(basemap.length-Number(slider.value));
     
 })
 
 
 function animate() {
+fl2.material.map = t2[t2.length-Number(slider.value)-1];
+fl2.material.needsUpdate = true;
+    fl2.position.set(0,slider.value/(basemap.length-1)-.5,0)
     controls.update();
     //fl2.position.set(slider.value,0,0)
     renderer.render(scene, camera);
