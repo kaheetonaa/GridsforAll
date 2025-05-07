@@ -129,8 +129,9 @@ scene.add( directionalLight );
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setAnimationLoop(animate);//set animation
-    document.body.appendChild(renderer.domElement);
+    document.getElementById('threedscene').appendChild(renderer.domElement);
     renderer.render(scene, camera);
+    renderer.setClearColor( 0xffff00, .1);
     window.addEventListener('resize', onWindowResize);
     controls = new OrbitControls( camera, renderer.domElement );
 

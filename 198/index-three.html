@@ -17,9 +17,11 @@
 <style>
     body {
         margin: 0;
+        background-color:black;
     }
     .slider{
         position:absolute;
+         z-index:11;
     }
     #timescale{
         left:5%;
@@ -33,10 +35,15 @@
         left:5%;
         top:10%;
     }
+    #threedscene{
+        position:absolute;
+        z-index:10;
+    }
 </style>
 
 <body>
-<script type="module" src="main-three.js"></script>
+    <div id="threedscene"></div>
+        <script type="module" src="main-three.js"></script> 
     <input type="range" min="0" max="1" value="0" step=".05" class="slider" id="timescale">
     <input type="range" min="0" max="1" value=".5" step=".05" class="slider" id="x">
     <input type="range" min="0" max="1" value=".5" step=".05" class="slider" id="y">
