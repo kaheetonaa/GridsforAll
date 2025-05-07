@@ -6,16 +6,51 @@ import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-let scene, camera, renderer,g,eg,feg,fm,fl,g2,feg2,fm2,fl2,eg2,g3,feg3,fm3,fl3,eg3,directionalLight,controls;
+let scene, camera, renderer,g,eg,feg,fm,fl,
+    basemap,l2,t2,g2,m2,fl2,eg2,
+    g3,feg3,fm3,fl3,eg3,
+    directionalLight,controls;
 let slider=document.getElementById('myRange')
+
+const manager = new THREE.LoadingManager();
+manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+	console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+};
+
+manager.onLoad = function ( ) {
+	console.log( 'Loading complete!');
+};
+
+manager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+};
+
+manager.onError = function ( url ) {
+	console.log( 'There was an error loading ' + url );
+};
+
+preload();
 init();
+
+function preload(){
+    //preload texture
+    basemap=['https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2024-12-12.jpeg',
+             'https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2015-03-18.jpeg']
+    l2 = new THREE.TextureLoader(manager);
+    t2 = [];
+    for ( let x=0;x<basemap.length;x++) {
+        t2[x]=l2.load(basemap[x]);
+        t2[x].colorSpace = THREE.SRGBColorSpace;
+    }
+    //console.log(t2)
+}
 
 function init() {
     scene = new THREE.Scene(); //draw scene
     let cameraHeight=1;
     let screenRatio=window.innerWidth / window.innerHeight;
     camera = new THREE.OrthographicCamera(-cameraHeight*screenRatio, cameraHeight*screenRatio, cameraHeight, -cameraHeight, 1, 1000)
-    camera.position.set(1, 2, 1); // Position the camera
+    camera.position.set(1, 2, 2); // Position the camera
     camera.lookAt(0, 0, 0); // Point the camera at the center of the scene
 
      g = new THREE.BoxGeometry(1, 1, 1);
@@ -29,15 +64,14 @@ function init() {
     fl = new LineSegments2(feg, fm);
 
     scene.add(fl);
-
-    g2 = new THREE.BoxGeometry(1, .05, 1);
     
-    
-
- eg2 = new THREE.EdgesGeometry(g2);
- feg2 = new LineSegmentsGeometry().fromEdgesGeometry(eg2);
-fm2 = new LineMaterial({color: "#00FF00",linewidth:1});
-    fl2 = new LineSegments2(feg2, fm2);
+    g2 = new THREE.PlaneGeometry( 1, 1 );
+    m2 = new THREE.MeshBasicMaterial({
+        map: t2[0],
+        side:THREE.DoubleSide
+    })
+    fl2 = new THREE.Mesh( g2, m2 );
+    fl2.rotation.x= -Math.PI / 2;
 
     scene.add(fl2);
 
@@ -52,7 +86,7 @@ fm3 = new LineMaterial({color: "lightgray",linewidth:1});
 
     scene.add(fl3);
 
-    const crossLoader = new OBJLoader();
+    const crossLoader = new OBJLoader(manager);
     const crossMtl = new THREE.MeshBasicMaterial({color: 0xFF0000}); 
 
   crossLoader.load('https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/main/assets/cross.obj', (cross) => {
@@ -102,10 +136,12 @@ function onWindowResize() {
 }
 
 slider.addEventListener('change',()=>{
+    fl2.material.map = t2[1];
+fl2.material.needsUpdate = true;
     fl2.position.set(0,slider.value,0)
     fl3.position.set(slider.value,0,0)
 renderer.render(scene, camera);
-    console.log(slider.value);
+    //console.log(slider.value);
     
 })
 
