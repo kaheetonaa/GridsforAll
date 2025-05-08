@@ -6,13 +6,36 @@ import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-let scene, camera, renderer,g,eg,feg,fm,fl,
+//load data
+let input_data,filtered_data,temp_photo,
+    scene, camera, renderer,g,eg,feg,fm,fl,
     basemap,l2,t2,g2,m2,fl2,eg2,
     g3,feg3,fm3,fl3,eg3,
+    data_point,data_point_material,data_point_geom,data_point_array,
     directionalLight,controls;
+
 let time_slider=document.getElementById('timescale')
 let x_slider=document.getElementById('x')
 let y_slider=document.getElementById('y')
+
+async function fetchCSV(url) {
+            try {
+                const response = await fetch(url);
+                const data = await response.text();
+                input_data=Papa.parse(data,{header:true});
+                console.log('load complete data')
+                preload();
+                init();
+            } catch (error) {
+                console.error('Error fetching CSV:', error);
+            }
+        }
+
+fetchCSV('test.csv');
+
+
+
+
 
 const manager = new THREE.LoadingManager();
 manager.onStart = function ( url, itemsLoaded, itemsTotal ) {
@@ -31,8 +54,7 @@ manager.onError = function ( url ) {
 	console.log( 'There was an error loading ' + url );
 };
 
-preload();
-init();
+
 
 function preload(){
     basemap=['https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/basemape/2024-12-12.jpeg',
@@ -123,6 +145,16 @@ fm3 = new LineMaterial({color: "lightgray",linewidth:1});
       }
   });
 
+    //data Point
+    console.log(input_data)
+    data_point_array=[]
+    data_point_array=addPoint(input_data['data']);
+    data_point_geom = new THREE.BufferGeometry();
+    data_point_geom.setFromPoints(data_point_array)
+    data_point_material = new THREE.PointsMaterial( {color:'#00FF00',size: 10, sizeAttenuation: false } );
+    data_point = new THREE.Points( data_point_geom, data_point_material );
+    scene.add( data_point );
+
     directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 scene.add( directionalLight );
 
@@ -134,7 +166,7 @@ scene.add( directionalLight );
     renderer.setClearColor( 0xffff00, .1);
     window.addEventListener('resize', onWindowResize);
     controls = new OrbitControls( camera, renderer.domElement );
-
+    addListener()
 }
 
 function onWindowResize() {
@@ -146,16 +178,88 @@ function onWindowResize() {
     
 
 }
+function addPoint(input) {
+    let array=[];
+//input_data['data']
+//data_point_array
+    for (let i in input) {
+        console.log(i)
+        let temp_data=input[i]
+        array.push(new THREE.Vector3(Number(temp_data['x'])-0.5,Number(temp_data['z'])-0.5,-Number(temp_data['y'])+0.5))
+    }
+    return array;
+}
+
+function addListener(){
+    document.getElementById('photo').addEventListener('pointerdown', photoPointerDown, false);
+    window.addEventListener('pointerup', pointerUp, false);
+}
+function pointerUp()
+{
+    console.log('up')
+    window.removeEventListener('pointermove', photoMove, true);
+    let photo = document.getElementById('photo');
+    let photo_x= Number(photo.style.left.replace('px',''))
+    let photo_y= Number(photo.style.top.replace('px',''))   
+    if (photo_x<0){
+        photo.style.left='0px'
+    }
+    if (photo_x>window.innerWidth-150){
+        photo.style.left=(window.innerWidth-150)+'px'
+    }
+    if (photo_y<0){
+        photo.style.top='0px'
+    }
+    if (photo_y>window.innerHeight-150){
+        photo.style.top=(window.innerHeight-150)+'px'
+    }
+}
+
+function photoPointerDown(e){
+    console.log('down')
+  window.addEventListener('pointermove', photoMove, true);
+}
+function photoMove(e){
+    console.log('move')
+    console.log(window.innerWidth-150/2)
+    let photo = document.getElementById('photo');
+    photo.style.top = (e.clientY-150/2) + 'px';
+    photo.style.left = (e.clientX-150/2) + 'px';
+}
 
 time_slider.addEventListener('change',()=>{
-    //
-renderer.render(scene, camera);
-    console.log(basemap.length-Number(time_slider.value));
-    
+    filtered_data=input_data['data'].filter(slideFilter)
+    console.log(filtered_data)
+    showFilter();
 })
+x_slider.addEventListener('change',()=>{
+    filtered_data=input_data['data'].filter(drillFilter)
+    showFilter();   
+})
+y_slider.addEventListener('change',()=>{
+    filtered_data=input_data['data'].filter(drillFilter)
+    showFilter();
+})
+function slideFilter(a) {
+    return Number(a['z'])>0.5
+}
+function drillFilter(a) {
+    return Number(a['angle'])>150
+}
+function showFilter(){
+    //document.querySelectorAll(".photo").forEach(el => el.remove());
+    document.getElementById('photo').style.backgroundImage="url("+filtered_data[0]['thumb_256']+")"
+    //for (let i in filtered_data){
+        //temp_photo=document.createElement('img');
+        //temp_photo.src=filtered_data[i]['thumb_256'];
+        //temp_photo.classList.add("photo")
+        //document.getElementById('photo').appendChild(temp_photo);
+    //}
+}
 
 
 function animate() {
+    
 fl3.position.set(x_slider.value-.5,0,1-y_slider.value-.5)
 fl2.material.map = t2[t2.length-Number(time_slider.value)-1];
 fl2.material.needsUpdate = true;
