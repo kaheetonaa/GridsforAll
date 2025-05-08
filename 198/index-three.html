@@ -13,62 +13,71 @@
           }
         }
     </script>
-     
+
     <title>Project#198-HamCaMap</title>
 </head>
 <style>
     body {
         margin: 0;
-        background-color:black;
+        background-color: black;
+        overscroll-behavior: none;
+        touch-action: none;
     }
-    .slider{
-        position:absolute;
-         z-index:11;
+
+    .slider {
+        position: absolute;
+        z-index: 11;
     }
-    #timescale{
-        left:5%;
-        top:2%;
+
+    #timescale {
+        left: 5%;
+        top: 2%;
     }
-    #x{
-        left:5%;
-        top:6%;
+
+    #x {
+        left: 5%;
+        top: 6%;
     }
-    #y{
-        left:5%;
-        top:10%;
+
+    #y {
+        left: 5%;
+        top: 10%;
     }
-    #threedscene{
-        position:absolute;
-        z-index:10;
+
+    #threedscene {
+        position: absolute;
+        z-index: 10;
     }
-    #photo{
-        position:absolute;
-        z-index:11;
-        background-color:#e4e4e4;
-        width:150px;
-        height:150px;
-        right:50px;
-        bottom:50px;
-        border-color:white;
-        border-width:3px;
-        border-style:solid;
+
+    #photo {
+        position: absolute;
+        z-index: 11;
+        background-color: #e4e4e4;
+        width: 150px;
+        height: 150px;
+        right: 50px;
+        bottom: 50px;
+        border-color: white;
+        border-width: 3px;
+        border-style: solid;
     }
-    #photowrap{
-        position:absolute;
-        top:0px;
-        left:0px;
-        width:100vw;
-        height:100vh;
-        overflow:hidden;
+
+    #photowrap {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
     }
 </style>
 
 <body>
     <div id="threedscene"></div>
     <div id="photowrap">
-    <div id="photo"></div>
+        <div id="photo"></div>
     </div>
-    <script type="module" src="main-three.js"></script> 
+    <script type="module" src="main-three.js"></script>
     <input type="range" min="0" max="1" value="0" step=".05" class="slider" id="timescale">
     <input type="range" min="0" max="1" value=".5" step=".05" class="slider" id="x">
     <input type="range" min="0" max="1" value=".5" step=".05" class="slider" id="y">
