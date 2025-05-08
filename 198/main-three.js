@@ -31,7 +31,7 @@ async function fetchCSV(url) {
             }
         }
 
-fetchCSV('test.csv');
+fetchCSV('https://raw.githubusercontent.com/kaheetonaa/GridsforAll/refs/heads/gh-pages/198/assets/test.csv');
 
 
 
