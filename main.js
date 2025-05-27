@@ -14,6 +14,8 @@ import Fill from 'ol/style/Fill.js';
 import Text from 'ol/style/Text.js';
 import cross from '/assets/cross.svg';
 import building_cross from '/assets/building_cross.svg';
+import CircleStyle from 'ol/style/Circle.js';
+import { UNSIGNED_SHORT } from 'ol/webgl';
 
 //Drawing overlay
 
@@ -26,9 +28,23 @@ let ctx;
 let select_coord = [centerX, centerY];
 let select = 0;
 let select_name = "";
+let select_color = 'black';
 let status = "";
+let z = 6;
+let z_threshold = 8;
+
 
 window.addEventListener('resize', resizeCanvas, false);
+
+function setColor(i) {
+  let label = { 'No protection': 'black', 'Demolished': 'blue', 'In danger': 'red' };
+  return label[i];
+}
+
+function setScale(i, max, min, smax, smin) {
+  return (smax - smin) / (max - min) * (i - min) + smin
+
+}
 
 function createCanvas(width, height, set2dTransform = true) {
   const ratio = Math.ceil(window.devicePixelRatio);
@@ -44,7 +60,7 @@ function createCanvas(width, height, set2dTransform = true) {
 }
 
 function resizeCanvas() {
-  canvas=createCanvas(window.innerWidth,window.innerHeight);
+  canvas = createCanvas(window.innerWidth, window.innerHeight);
   //canvas.width = window.innerWidth;
   //canvas.height = window.innerHeight;
   ctx = canvas.getContext("2d");
@@ -58,23 +74,37 @@ function resizeCanvas() {
 resizeCanvas();
 
 function drawStuff() {
+
   // do your drawing stuff here
   ctx.clearRect(0, 0, centerX * 2, centerY * 2);//clear background
   if (select > 0) {
-    ctx.strokeStyle = 'red';
+    ctx.strokeStyle = select_color;
     ctx.beginPath()
     ctx.moveTo(centerX, centerY);
     ctx.lineTo(select_coord[0], select_coord[1]);
     ctx.stroke();
     ctx.font = 'bold 16px Courier'; // Default font if none provided
-    ctx.fillStyle = 'red'; // Default color if none provided
+
     ctx.textAlign = 'center'; // Default alignment if none provided
-    
-    if (select_coord[1] > centerY) {
-      ctx.fillText(select_name, centerX, centerY - 16);
-    } else {
-      ctx.fillText(select_name, centerX, centerY + 16);
+    let frame_length = select_name.length * 5
+    console.log(centerX - frame_length)
+    //if (select_coord[1] > centerY) {
+    if (select_color == "#FFFFFF" || select_color == undefined) {
+      ctx.fillStyle = 'white';
     }
+    ctx.fillStyle = select_color;
+    ctx.beginPath();
+    ctx.rect(centerX - frame_length, centerY - 16, frame_length * 2, 20);
+    ctx.fill()
+    console.log(select_color == undefined)
+    if (select_color == "#FFFFFF" || select_color == undefined) {
+      ctx.fillStyle = 'black';
+    } else { ctx.fillStyle = 'white'; }
+    // Default color if none provided
+    ctx.fillText(select_name, centerX, centerY);
+    //} else {
+    // ctx.fillText(select_name, centerX, centerY + 16);
+    //}
   } else {
     ctx.beginPath();
     ctx.arc(centerX, centerY, 100, 0, 2 * Math.PI);
@@ -104,23 +134,24 @@ var buildings = new VectorSource({
 });
 
 const building_cluster = new Cluster({
-  distance: 50,
+  distance: 10,
   minDistance: 1,
   source: buildings,
 });
 
-const styleCache = {};
+//const styleCache = {};
 
 const building_layer = new VectorLayer({
   className: 'building',
   source: building_cluster,
   style: function (feature) {
+    let f_color = setColor(feature.values_.features[0].values_.STATUS); //
     const size = feature.get('features').length;
-    let style = styleCache[size];
-    if (!style) {
+    let style //= styleCache[size];
+    if (z >= z_threshold) {
       style = new Style({
         image: new Icon({
-          color: 'red',
+          color: f_color,
           scale: 1,
           crossOrigin: 'anonymous',
           src: building_cross,
@@ -128,13 +159,31 @@ const building_layer = new VectorLayer({
         text: new Text({
           text: size.toString(),
           fill: new Fill({
-            color: 'red',
+            color: f_color,
           }),
           offsetX: 10,
           offsetY: 10
         })
       });
-      styleCache[size] = style;
+      //styleCache[size] = style;
+
+    } else {
+      style = new Style({
+        image: new CircleStyle({
+          radius: setScale(size, 100, 2, 50, 10), //align scale
+          fill: new Fill({
+            color: 'black',
+          }),
+        }),
+        text: new Text({
+          text: size.toString(),
+          fill: new Fill({
+            color: 'white',
+          }),
+          offsetX: 0,
+          offsetY: 0
+        })
+      });
 
     }
     return style;
@@ -315,6 +364,7 @@ map.on('moveend', (e) => {
         //console.log(map.getPixelFromCoordinate(features['values_']['features'][0]['values_']['geometry']['flatCoordinates']));
         select_coord = map.getPixelFromCoordinate(features['values_']['features'][0]['values_']['geometry']['flatCoordinates']);
         select_name = features['values_']['features'][0]['values_']['(1) BUILDING NAME '];
+        select_color = setColor(features.values_.features[0].values_.STATUS)
         return true;
       }
     },
@@ -323,6 +373,7 @@ map.on('moveend', (e) => {
       hitTolerance: 100,
     })
   let zoom = map.getView().getZoom();
+  z = zoom;
   if (zoom <= 8) {
     grid_size = grid_size_list[0]
   }
