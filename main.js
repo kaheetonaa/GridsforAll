@@ -22,8 +22,8 @@ import {fromLonLat} from 'ol/proj';
 
 
 let coordinate;
-const centerX = window.innerWidth / 2;
-const centerY = window.innerHeight / 2;
+let centerX;
+let centerY;
 let canvas;
 let ctx;
 let select_coord = [centerX, centerY];
@@ -68,6 +68,8 @@ function createCanvas(width, height, set2dTransform = true) {
 
 function resizeCanvas() {
   canvas = createCanvas(window.innerWidth, window.innerHeight);
+  centerX=canvas.width/2;
+  centerY=canvas.height/2;
   //canvas.width = window.innerWidth;
   //canvas.height = window.innerHeight;
   ctx = canvas.getContext("2d");
@@ -81,7 +83,7 @@ function resizeCanvas() {
 resizeCanvas();
 
 function drawStuff() {
-
+  
   // do your drawing stuff here
   ctx.clearRect(0, 0, centerX * 2, centerY * 2);//clear background
   if (select > 0) {
