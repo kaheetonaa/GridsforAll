@@ -55,7 +55,7 @@ function geolocate() {
 window.addEventListener('resize', resizeCanvas, false);
 
 function setColor(i) {
-  let label = { 'No protection': 'white', 'Demolished': 'black', 'In danger': 'red','Protected':'green' };
+  let label = { 'No protection': 'yellow', 'Demolished': 'black', 'In danger': 'red','Protected':'green' };
   return label[i];
 }
 
@@ -114,8 +114,8 @@ function drawStuff() {
     ctx.beginPath();
     ctx.rect(centerX - frame_length, centerY - 16, frame_length * 2, 20);
     ctx.fill()
-    console.log(select_color == undefined)
-    if (select_color == "#FFFFFF" || select_color == undefined || select_color=='white') {
+    //console.log(select_color == undefined)
+    if (select_color == "#FFFFFF" || select_color == undefined || select_color=='yellow') {
       ctx.fillStyle = 'black';
     } else { ctx.fillStyle = 'white'; }
     // Default color if none provided
@@ -154,21 +154,51 @@ var buildings = new VectorSource({
 });
 
 const building_cluster = new Cluster({
-  distance: 10,
-  minDistance: 1,
+  distance: 30,
+  minDistance: 0,
   source: buildings,
 });
 
 //const styleCache = {};
 
-const building_layer = new VectorLayer({
+const building_layer_cluster = new VectorLayer({
   className: 'building',
   source: building_cluster,
   style: function (feature) {
     let f_color = setColor(feature.values_.features[0].values_.STATUS); //
     const size = feature.get('features').length;
     let style //= styleCache[size];
-    if (z >= z_threshold && size==1) {
+      style = new Style({
+        image: new CircleStyle({
+          radius: setScale(size, 100, 2, 50, 10), //align scale
+          fill: new Fill({
+            color: 'black',
+          }),
+        }),
+        text: new Text({
+          text: size.toString(),
+          fill: new Fill({
+            color: 'white',
+          }),
+          offsetX: 0,
+          offsetY: 0
+        })
+      });
+    return style;
+  },
+  maxZoom: z_threshold,
+});
+
+
+const building_layer= new VectorLayer({
+  className: 'building',
+  source: buildings,
+  style: function (feature) {
+    console.log(feature)
+    let f_color = setColor(feature.values_.STATUS); //values_.STATUS
+    //const size = feature.get('features').length;
+    //console.log(size)
+    let style //= styleCache[size];
       style = new Style({
         image: new Icon({
           color: f_color,
@@ -186,30 +216,10 @@ const building_layer = new VectorLayer({
         //})
       });
       //styleCache[size] = style;
-
-    } else {
-      style = new Style({
-        image: new CircleStyle({
-          radius: setScale(size, 100, 2, 50, 10), //align scale
-          fill: new Fill({
-            color: 'black',
-          }),
-        }),
-        text: new Text({
-          text: size.toString(),
-          fill: new Fill({
-            color: 'white',
-          }),
-          offsetX: 0,
-          offsetY: 0
-        })
-      });
-
-    }
     return style;
   },
+  minZoom: z_threshold,
 });
-
 
 
 
@@ -347,7 +357,7 @@ const map = new Map({
   layers: [
     new ImageLayer({
       source: raster,
-    }), building_layer
+    }), building_layer,building_layer_cluster
   ],
   target: 'map',
   view: view
@@ -370,24 +380,7 @@ map.on('movestart', (e) => {
   drawStuff();
 })
 map.on('moveend', (e) => {
-  //console.log(building_layer['className_'])
-  //console.log('center' + map.getPixelFromCoordinate(map.getView().getCenter()))
-  map.forEachFeatureAtPixel(map.getPixelFromCoordinate(
-    map.getView().getCenter()),
-    (features) => {
-      if (features['values_']['features'].length > 0) {
-        select = 1; //have selected
-        //console.log(map.getPixelFromCoordinate(features['values_']['features'][0]['values_']['geometry']['flatCoordinates']));
-        select_coord = map.getPixelFromCoordinate(features['values_']['features'][0]['values_']['geometry']['flatCoordinates']);
-        select_name = features['values_']['features'][0]['values_']['(1) BUILDING NAME '];
-        select_color = setColor(features.values_.features[0].values_.STATUS)
-        return true;
-      }
-    },
-    {
-      layerFilter: (layer) => { return layer['className_'] == 'building' },
-      hitTolerance: dist_thres,
-    })
+  
   let zoom = map.getView().getZoom();
   z = zoom;
   if (zoom <= 8) {
@@ -407,7 +400,25 @@ map.on('moveend', (e) => {
   }
   grid.setXGridSize(grid_size)
   grid.setYGridSize(grid_size)
-  drawStuff();
+  if (z>=z_threshold){
+    map.forEachFeatureAtPixel(map.getPixelFromCoordinate(
+      map.getView().getCenter()),
+      (feature) => {
+        //if (features['values_']['features'].length > 0) {
+          select = 1; //have selected
+          select_coord = map.getPixelFromCoordinate(feature.values_.geometry.flatCoordinates);
+          select_name = feature.values_['(1) BUILDING NAME '];
+          select_color = setColor(feature.values_.STATUS)
+          return true;
+        //}
+      },
+      {
+        layerFilter: (layer) => { return layer['className_'] == 'building' },
+        hitTolerance: dist_thres,
+      })
+      drawStuff();
+    }
+  
 })
 
 document.getElementById("geolocate_button").onclick=()=>{
