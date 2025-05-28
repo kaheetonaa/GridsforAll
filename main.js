@@ -375,8 +375,8 @@ map.on('movestart', (e) => {
   drawStuff();
 })
 map.on('moveend', (e) => {
-  
   let zoom = map.getView().getZoom();
+  console.log(z)
   z = zoom;
   if (zoom <= 8) {
     grid_size = grid_size_list[0]
@@ -420,6 +420,7 @@ document.getElementById("geolocate_button").onclick=()=>{
   geolocate();  
 }
 function geolocate() {
+  console.log(z)
   let coordinate=geolocation.getPosition();
   view.setCenter(coordinate)
   if (z<z_threshold){
