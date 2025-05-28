@@ -39,13 +39,22 @@
       border: 1px dashed #000000;
       background-color: white;
     }
+
+    .geolocate{
+      bottom:5vh;
+      left:5vh;
+      position: absolute;
+      z-index:110;
+    }
   </style>
-  <script type="module" crossorigin src="/assets/index-Ds27UZA_.js"></script>
+  <script type="module" crossorigin src="/assets/index-CI81XsSc.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-BtPuoxOl.css">
 <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
 
 <body>
+  <div class="geolocate"><button id="geolocate_button">geolocate me!</button></div>
   <canvas id="myCanvas">
+    
   </canvas>
   <div id="map" class="map"></div>
   </div>
