@@ -39,7 +39,7 @@ let view = new View({
   zoom: 6,
   maxZoom: 18,
 })
-
+const geolocate_btn=document.getElementById("geolocate_button");
 
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -409,8 +409,8 @@ map.on('moveend', (e) => {
     }
   
 })
-let geolocate_btn=document.getElementById("geolocate_button");
-geolocate_btn.addEventListener('click',()=>{getLocation()});
+
+geolocate_btn.onclick=()=>getLocation();
 
 
 function getLocation() {
