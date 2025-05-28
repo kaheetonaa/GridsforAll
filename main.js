@@ -105,7 +105,7 @@ function drawStuff() {
     ctx.moveTo(centerX, centerY);
     ctx.lineTo(select_coord[0], select_coord[1]);
     ctx.stroke();
-    ctx.font = 'bold 16px Courier'; // Default font if none provided
+    ctx.font = 'bold 16px Archivo'; // Default font if none provided
 
     ctx.textAlign = 'center'; // Default alignment if none provided
     let frame_length = select_name.length * 5
