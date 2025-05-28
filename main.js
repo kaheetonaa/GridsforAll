@@ -51,6 +51,7 @@ const geolocation = new Geolocation({
   },
   projection: view.getProjection(),
 });
+
 const geolocate_btn=document.getElementById("geolocate_button");
 
 window.addEventListener('resize', resizeCanvas, false);
@@ -423,11 +424,11 @@ map.on('moveend', (e) => {
     }
   
 })
-
+geolocation.setTracking(1);
 geolocate_btn.onclick=()=>geolocate();
 
 function geolocate(position) {
-  geolocation.setTracking(1);
+  
   //let m_size = map.getSize();
   //console.log(z)
   coordinate=geolocation.getPosition()
