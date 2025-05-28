@@ -68,8 +68,8 @@ function createCanvas(width, height, set2dTransform = true) {
 
 function resizeCanvas() {
   canvas = createCanvas(window.innerWidth, window.innerHeight);
-  centerX=canvas.width/2;
-  centerY=canvas.height/2;
+  centerX=window.innerWidth/2;
+  centerY=window.innerHeight/2;
   //canvas.width = window.innerWidth;
   //canvas.height = window.innerHeight;
   ctx = canvas.getContext("2d");
