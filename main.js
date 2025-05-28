@@ -15,7 +15,7 @@ import Text from 'ol/style/Text.js';
 import cross from '/assets/cross.svg';
 import building_cross from '/assets/building_cross.svg';
 import CircleStyle from 'ol/style/Circle.js';
-import { UNSIGNED_SHORT } from 'ol/webgl';
+import Geolocation from 'ol/Geolocation.js';
 
 //Drawing overlay
 
@@ -33,7 +33,24 @@ let status = "";
 let z = 6;
 let z_threshold = 8;
 let dist_thres=150;
+let view = new View({
+  center: [11834170.421, 1879590.664],
+  zoom: 6,
+  maxZoom: 18,
+})
+let geolocation = new Geolocation({
+  // enableHighAccuracy must be set to true to have the heading value.
+  trackingOptions: {
+    enableHighAccuracy: true,
+  },
+  projection: view.getProjection(),
+});
+geolocation.setTracking(1)
 
+function geolocate() {
+  let coordinate=geolocation.getPosition();
+  view.setCenter(coordinate)
+}
 
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -333,11 +350,7 @@ const map = new Map({
     }), building_layer
   ],
   target: 'map',
-  view: new View({
-    center: [11834170.421, 1879590.664],
-    zoom: 6,
-    maxZoom: 18,
-  }),
+  view: view
 });
 
 
@@ -396,3 +409,7 @@ map.on('moveend', (e) => {
   grid.setYGridSize(grid_size)
   drawStuff();
 })
+
+document.getElementById("geolocate_button").onclick=()=>{
+  geolocate();  
+}
