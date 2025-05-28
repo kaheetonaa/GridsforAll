@@ -15,12 +15,13 @@ import Text from 'ol/style/Text.js';
 import cross from '/assets/cross.svg';
 import building_cross from '/assets/building_cross.svg';
 import CircleStyle from 'ol/style/Circle.js';
-import Geolocation from 'ol/Geolocation.js';
+import {fromLonLat} from 'ol/proj';
+
 
 //Drawing overlay
 
 
-
+let coordinate;
 const centerX = window.innerWidth / 2;
 const centerY = window.innerHeight / 2;
 let canvas;
@@ -38,14 +39,7 @@ let view = new View({
   zoom: 6,
   maxZoom: 18,
 })
-let geolocation = new Geolocation({
-  // enableHighAccuracy must be set to true to have the heading value.
-  trackingOptions: {
-    enableHighAccuracy: true,
-  },
-  projection: view.getProjection(),
-});
-geolocation.setTracking(1)
+
 
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -415,16 +409,31 @@ map.on('moveend', (e) => {
     }
   
 })
+let geolocate_btn=document.getElementById("geolocate_button");
+geolocate_btn.addEventListener('click',()=>{getLocation()});
 
-document.getElementById("geolocate_button").onclick=()=>{
-  geolocate();  
-}
-function geolocate() {
-  console.log(z)
-  let coordinate=geolocation.getPosition();
-  view.setCenter(coordinate)
-  if (z<z_threshold){
-    z=z_threshold
-    view.setZoom(z_threshold)
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(geolocate);
+  } else { 
+    console.log("Geolocation is not supported by this browser.");
   }
+}
+
+function geolocate(position) {
+
+  //let m_size = map.getSize();
+  //console.log(z)
+  console.log(position.coords.latitude,position.coords.longitude)
+  coordinate=fromLonLat([position.coords.longitude,position.coords.latitude],'EPSG:3857');
+  console.log(coordinate)
+  if (coordinate!=undefined){
+    view.setCenter(coordinate)
+    if (z<z_threshold){
+      z=z_threshold
+      map.getView().setZoom(z_threshold)
+    }
+  }
+  
 }
