@@ -37,7 +37,7 @@ let z_threshold = 8;
 window.addEventListener('resize', resizeCanvas, false);
 
 function setColor(i) {
-  let label = { 'No protection': 'black', 'Demolished': 'blue', 'In danger': 'red' };
+  let label = { 'No protection': 'white', 'Demolished': 'black', 'In danger': 'red','Protected':'green  ' };
   return label[i];
 }
 
