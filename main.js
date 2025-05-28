@@ -16,6 +16,9 @@ import cross from '/assets/cross.svg';
 import building_cross from '/assets/building_cross.svg';
 import CircleStyle from 'ol/style/Circle.js';
 import {fromLonLat} from 'ol/proj';
+import Geolocation from 'ol/Geolocation.js';
+
+
 
 
 //Drawing overlay
@@ -38,7 +41,16 @@ let view = new View({
   center: [11834170.421, 1879590.664],
   zoom: 6,
   maxZoom: 18,
+  projection:'EPSG:3857'
 })
+
+const geolocation = new Geolocation({
+  // enableHighAccuracy must be set to true to have the heading value.
+  trackingOptions: {
+    enableHighAccuracy: false,
+  },
+  projection: view.getProjection(),
+});
 const geolocate_btn=document.getElementById("geolocate_button");
 
 window.addEventListener('resize', resizeCanvas, false);
@@ -412,23 +424,13 @@ map.on('moveend', (e) => {
   
 })
 
-geolocate_btn.onclick=()=>getLocation();
-
-
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(geolocate);
-  } else { 
-    console.log("Geolocation is not supported by this browser.");
-  }
-}
+geolocate_btn.onclick=()=>geolocate();
 
 function geolocate(position) {
-
+  geolocation.setTracking(1);
   //let m_size = map.getSize();
   //console.log(z)
-  console.log(position.coords.latitude,position.coords.longitude)
-  coordinate=fromLonLat([position.coords.longitude,position.coords.latitude],'EPSG:3857');
+  coordinate=geolocation.getPosition()
   console.log(coordinate)
   if (coordinate!=undefined){
     view.setCenter(coordinate)
@@ -436,6 +438,8 @@ function geolocate(position) {
       z=z_threshold
       map.getView().setZoom(z_threshold)
     }
+  } else {
+    alert('geolocation does not work now, try again!')
   }
   
 }
