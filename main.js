@@ -176,14 +176,14 @@ const building_layer = new VectorLayer({
           crossOrigin: 'anonymous',
           src: building_cross,
         }),
-        text: new Text({
-          text: size.toString(),
-          fill: new Fill({
-            color: f_color,
-          }),
-          offsetX: 10,
-          offsetY: 10
-        })
+        //text: new Text({
+        //  text: size.toString(),
+        //  fill: new Fill({
+        //    color: f_color,
+        //  }),
+        //  offsetX: 10,
+        //  offsetY: 10
+        //})
       });
       //styleCache[size] = style;
 
