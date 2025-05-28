@@ -47,11 +47,6 @@ let geolocation = new Geolocation({
 });
 geolocation.setTracking(1)
 
-function geolocate() {
-  let coordinate=geolocation.getPosition();
-  view.setCenter(coordinate)
-}
-
 window.addEventListener('resize', resizeCanvas, false);
 
 function setColor(i) {
@@ -423,4 +418,12 @@ map.on('moveend', (e) => {
 
 document.getElementById("geolocate_button").onclick=()=>{
   geolocate();  
+}
+function geolocate() {
+  let coordinate=geolocation.getPosition();
+  view.setCenter(coordinate)
+  if (z<z_threshold){
+    z=z_threshold
+    view.setZoom(z_threshold)
+  }
 }
