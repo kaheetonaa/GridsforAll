@@ -5,8 +5,5 @@ export default {
     sourcemap: false,
     assetsInclude: ['./assets'],
     emptyOutDir: false,
-  },
-  plugins: [
-    VitePWA({ registerType: 'autoUpdate' })
-  ]
+  }
 }
