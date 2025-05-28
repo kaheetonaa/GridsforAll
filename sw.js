@@ -1,1 +1,59 @@
-if(!self.define){let e,s={};const i=(i,n)=>(i=new URL(i+".js",n).href,s[i]||new Promise((s=>{if("document"in self){const e=document.createElement("script");e.src=i,e.onload=s,document.head.appendChild(e)}else e=i,importScripts(i),s()})).then((()=>{let e=s[i];if(!e)throw new Error(`Module ${i} didn’t register its module`);return e})));self.define=(n,r)=>{const l=e||("document"in self?document.currentScript.src:"")||location.href;if(s[l])return;let t={};const o=e=>i(e,l),u={module:{uri:l},exports:t,require:o};s[l]=Promise.all(n.map((e=>u[e]||o(e)))).then((e=>(r(...e),t)))}}define(["./workbox-5ffe50d4"],(function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"198/assets/index-DbZNmUct.js",revision:"5412491db6c718d1c96027615ea2878a"},{url:"198/index-three.html",revision:"301b41920f8af603f2f96af9d24f6c05"},{url:"198/index.html",revision:"cd99393a0a126ef5eb01191bce25b332"},{url:"198/main-three.js",revision:"c01de21d7f80507c660613a92a51607c"},{url:"assets/index-aJvAjnAd.js",revision:null},{url:"assets/index-B7vau9d8.js",revision:null},{url:"assets/index-BKE5nlf6.js",revision:null},{url:"assets/index-BPkUG6a_.js",revision:null},{url:"assets/index-BtPuoxOl.css",revision:null},{url:"assets/index-CI81XsSc.js",revision:null},{url:"assets/index-Ds27UZA_.js",revision:null},{url:"index.html",revision:"289674b0b982257e44e0f7185a1fd426"},{url:"registerSW.js",revision:"1872c500de691dce40960bb85481de07"},{url:"manifest.webmanifest",revision:"afa8a2c87914efbc0469a12692e6f733"}],{}),e.cleanupOutdatedCaches(),e.registerRoute(new e.NavigationRoute(e.createHandlerBoundToURL("index.html")))}));
+var APP_PREFIX = 'Grids for all'     // Identifier for this app (this needs to be consistent across every cache update)
+var VERSION = 'version_01'              // Version of the off-line cache (change this value everytime you want to update cache)
+var CACHE_NAME = APP_PREFIX + VERSION
+var URLS = [                            // Add URL you want to cache in this list.
+  '/GridsforALL/',                     // If you have separate JS/CSS files,
+  '/GridsforALL/index.html',            // add path to those files here
+  '/GridsforALL/manifest.json' 
+]
+
+// Respond with cached resources
+self.addEventListener('fetch', function (e) {
+  console.log('fetch request : ' + e.request.url)
+  e.respondWith(
+    caches.match(e.request).then(function (request) {
+      if (request) { // if cache is available, respond with cache
+        console.log('responding with cache : ' + e.request.url)
+        return request
+      } else {       // if there are no cache, try fetching request
+        console.log('file is not cached, fetching : ' + e.request.url)
+        return fetch(e.request)
+      }
+
+      // You can omit if/else for console.log & put one line below like this too.
+      // return request || fetch(e.request)
+    })
+  )
+})
+
+// Cache resources
+self.addEventListener('install', function (e) {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      console.log('installing cache : ' + CACHE_NAME)
+      return cache.addAll(URLS)
+    })
+  )
+})
+
+// Delete outdated caches
+self.addEventListener('activate', function (e) {
+  e.waitUntil(
+    caches.keys().then(function (keyList) {
+      // `keyList` contains all cache names under your username.github.io
+      // filter out ones that has this app prefix to create white list
+      var cacheWhitelist = keyList.filter(function (key) {
+        return key.indexOf(APP_PREFIX)
+      })
+      // add current cache name to white list
+      cacheWhitelist.push(CACHE_NAME)
+
+      return Promise.all(keyList.map(function (key, i) {
+        if (cacheWhitelist.indexOf(key) === -1) {
+          console.log('deleting cache : ' + keyList[i] )
+          return caches.delete(keyList[i])
+        }
+      }))
+    })
+  )
+})
