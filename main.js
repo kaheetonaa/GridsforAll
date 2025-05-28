@@ -32,12 +32,13 @@ let select_color = 'black';
 let status = "";
 let z = 6;
 let z_threshold = 8;
+let dist_thres=150;
 
 
 window.addEventListener('resize', resizeCanvas, false);
 
 function setColor(i) {
-  let label = { 'No protection': 'white', 'Demolished': 'black', 'In danger': 'red','Protected':'green  ' };
+  let label = { 'No protection': 'white', 'Demolished': 'black', 'In danger': 'red','Protected':'green' };
   return label[i];
 }
 
@@ -97,7 +98,7 @@ function drawStuff() {
     ctx.rect(centerX - frame_length, centerY - 16, frame_length * 2, 20);
     ctx.fill()
     console.log(select_color == undefined)
-    if (select_color == "#FFFFFF" || select_color == undefined) {
+    if (select_color == "#FFFFFF" || select_color == undefined || select_color=='white') {
       ctx.fillStyle = 'black';
     } else { ctx.fillStyle = 'white'; }
     // Default color if none provided
@@ -107,11 +108,13 @@ function drawStuff() {
     //}
   } else {
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 100, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, dist_thres, 0, 2 * Math.PI);
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1; // Or whatever thickness you want
     ctx.setLineDash([1, 3]);
     ctx.stroke();
+    ctx.fillStyle = '#FFFFFF30';
+    ctx.fill();
     ctx.setLineDash([]); // Reset line dash to solid
   }
 }
@@ -148,7 +151,7 @@ const building_layer = new VectorLayer({
     let f_color = setColor(feature.values_.features[0].values_.STATUS); //
     const size = feature.get('features').length;
     let style //= styleCache[size];
-    if (z >= z_threshold) {
+    if (z >= z_threshold && size==1) {
       style = new Style({
         image: new Icon({
           color: f_color,
@@ -370,7 +373,7 @@ map.on('moveend', (e) => {
     },
     {
       layerFilter: (layer) => { return layer['className_'] == 'building' },
-      hitTolerance: 100,
+      hitTolerance: dist_thres,
     })
   let zoom = map.getView().getZoom();
   z = zoom;
